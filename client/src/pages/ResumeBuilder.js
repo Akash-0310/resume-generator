@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   User, Briefcase, GraduationCap, Code, Award, Languages, Plus, Trash2,
   Download, Eye, EyeOff, ChevronDown, ChevronUp, Mail, Phone, MapPin,
-  Linkedin, Github, Globe, FileText, Palette
+  Linkedin, Github, Globe, FileText, Palette, Check
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -14,6 +14,18 @@ const ResumeBuilder = () => {
   const [activeSection, setActiveSection] = useState('personal');
   const [isDownloading, setIsDownloading] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState('classic');
+  const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
+  const templateDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (templateDropdownRef.current && !templateDropdownRef.current.contains(e.target)) {
+        setTemplateDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const templates = [
     { id: 'classic',   name: 'Classic',   accent: '#2563eb', label: 'Blue centered header' },
@@ -1323,18 +1335,42 @@ const ResumeBuilder = () => {
           <div className="builder-preview">
             <div className="preview-header">
               <span className="preview-label-text">Live Preview</span>
-              <div className="template-dropdown-wrapper">
-                <Palette size={14} className="template-dropdown-icon" />
-                <select
-                  className="template-dropdown"
-                  value={selectedTemplate}
-                  onChange={(e) => setSelectedTemplate(e.target.value)}
+              <div className="template-dropdown-wrapper" ref={templateDropdownRef}>
+                <button
+                  className={`template-dropdown-trigger ${templateDropdownOpen ? 'open' : ''}`}
+                  onClick={() => setTemplateDropdownOpen(o => !o)}
+                  type="button"
                 >
-                  {templates.map(t => (
-                    <option key={t.id} value={t.id}>{t.name} — {t.label}</option>
-                  ))}
-                </select>
-                <ChevronDown size={13} className="template-dropdown-arrow" />
+                  <Palette size={14} className="template-dropdown-icon" />
+                  <span
+                    className="template-dropdown-dot"
+                    style={{ background: templates.find(t => t.id === selectedTemplate)?.accent }}
+                  />
+                  <span className="template-dropdown-current">
+                    {templates.find(t => t.id === selectedTemplate)?.name}
+                  </span>
+                  <ChevronDown size={13} className={`template-dropdown-arrow ${templateDropdownOpen ? 'rotated' : ''}`} />
+                </button>
+
+                {templateDropdownOpen && (
+                  <div className="template-dropdown-panel">
+                    {templates.map(t => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        className={`template-option ${selectedTemplate === t.id ? 'selected' : ''}`}
+                        onClick={() => { setSelectedTemplate(t.id); setTemplateDropdownOpen(false); }}
+                      >
+                        <span className="template-option-dot" style={{ background: t.accent }} />
+                        <span className="template-option-text">
+                          <span className="template-option-name">{t.name}</span>
+                          <span className="template-option-label">{t.label}</span>
+                        </span>
+                        {selectedTemplate === t.id && <Check size={13} className="template-option-check" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <div className="preview-scroll">
