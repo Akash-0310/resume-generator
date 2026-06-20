@@ -841,17 +841,22 @@ const ResumeBuilder = () => {
                     </div>
                     <div className="form-grid">
                       <div className="builder-field">
-                        <label>Institution</label>
+                        <label htmlFor={`edu-institution-${edu.id}`}>Institution</label>
                         <input
+                          id={`edu-institution-${edu.id}`}
+                          name="institution"
                           type="text"
+                          autoComplete="organization"
                           value={edu.institution}
                           onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
                           placeholder="Stanford University"
                         />
                       </div>
                       <div className="builder-field">
-                        <label>Degree</label>
+                        <label htmlFor={`edu-degree-${edu.id}`}>Degree</label>
                         <input
+                          id={`edu-degree-${edu.id}`}
+                          name="degree"
                           type="text"
                           value={edu.degree}
                           onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
@@ -859,8 +864,10 @@ const ResumeBuilder = () => {
                         />
                       </div>
                       <div className="builder-field">
-                        <label>Field of Study</label>
+                        <label htmlFor={`edu-field-${edu.id}`}>Field of Study</label>
                         <input
+                          id={`edu-field-${edu.id}`}
+                          name="field-of-study"
                           type="text"
                           value={edu.field}
                           onChange={(e) => updateEducation(edu.id, 'field', e.target.value)}
@@ -868,8 +875,10 @@ const ResumeBuilder = () => {
                         />
                       </div>
                       <div className="builder-field">
-                        <label>GPA</label>
+                        <label htmlFor={`edu-gpa-${edu.id}`}>GPA</label>
                         <input
+                          id={`edu-gpa-${edu.id}`}
+                          name="gpa"
                           type="text"
                           value={edu.gpa}
                           onChange={(e) => updateEducation(edu.id, 'gpa', e.target.value)}
@@ -877,8 +886,10 @@ const ResumeBuilder = () => {
                         />
                       </div>
                       <div className="builder-field">
-                        <label>Start Date</label>
+                        <label htmlFor={`edu-start-${edu.id}`}>Start Date</label>
                         <input
+                          id={`edu-start-${edu.id}`}
+                          name="edu-start-date"
                           type="text"
                           value={edu.startDate}
                           onChange={(e) => updateEducation(edu.id, 'startDate', e.target.value)}
@@ -886,8 +897,10 @@ const ResumeBuilder = () => {
                         />
                       </div>
                       <div className="builder-field">
-                        <label>End Date</label>
+                        <label htmlFor={`edu-end-${edu.id}`}>End Date</label>
                         <input
+                          id={`edu-end-${edu.id}`}
+                          name="edu-end-date"
                           type="text"
                           value={edu.endDate}
                           onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
@@ -906,6 +919,8 @@ const ResumeBuilder = () => {
                 <h2><Code size={20} /> Skills</h2>
                 <div className="skill-input-row">
                   <input
+                    id="skill-input"
+                    name="skill"
                     type="text"
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
@@ -958,8 +973,10 @@ const ResumeBuilder = () => {
                     </div>
                     <div className="form-grid">
                       <div className="builder-field">
-                        <label>Project Name</label>
+                        <label htmlFor={`proj-name-${proj.id}`}>Project Name</label>
                         <input
+                          id={`proj-name-${proj.id}`}
+                          name="project-name"
                           type="text"
                           value={proj.name}
                           onChange={(e) => updateProject(proj.id, 'name', e.target.value)}
@@ -967,8 +984,10 @@ const ResumeBuilder = () => {
                         />
                       </div>
                       <div className="builder-field">
-                        <label>Technologies</label>
+                        <label htmlFor={`proj-tech-${proj.id}`}>Technologies</label>
                         <input
+                          id={`proj-tech-${proj.id}`}
+                          name="technologies"
                           type="text"
                           value={proj.technologies}
                           onChange={(e) => updateProject(proj.id, 'technologies', e.target.value)}
@@ -976,9 +995,12 @@ const ResumeBuilder = () => {
                         />
                       </div>
                       <div className="builder-field full-width">
-                        <label>Project Link</label>
+                        <label htmlFor={`proj-link-${proj.id}`}>Project Link</label>
                         <input
-                          type="text"
+                          id={`proj-link-${proj.id}`}
+                          name="project-url"
+                          type="url"
+                          autoComplete="url"
                           value={proj.link}
                           onChange={(e) => updateProject(proj.id, 'link', e.target.value)}
                           placeholder="github.com/johndoe/project"
@@ -986,8 +1008,10 @@ const ResumeBuilder = () => {
                       </div>
                     </div>
                     <div className="builder-field full-width">
-                      <label>Description</label>
+                      <label htmlFor={`proj-desc-${proj.id}`}>Description</label>
                       <textarea
+                        id={`proj-desc-${proj.id}`}
+                        name="project-description"
                         value={proj.description}
                         onChange={(e) => updateProject(proj.id, 'description', e.target.value)}
                         placeholder="Describe the project, your role, and key achievements..."
