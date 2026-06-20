@@ -13,6 +13,14 @@ const ResumeBuilder = () => {
   const [showPreview, setShowPreview] = useState(true);
   const [activeSection, setActiveSection] = useState('personal');
   const [isDownloading, setIsDownloading] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState('classic');
+
+  const templates = [
+    { id: 'classic', name: 'Classic', accent: '#2563eb' },
+    { id: 'modern', name: 'Modern', accent: '#6366f1' },
+    { id: 'minimal', name: 'Minimal', accent: '#1a1a1a' },
+    { id: 'executive', name: 'Executive', accent: '#0f172a' },
+  ];
 
   const [resumeData, setResumeData] = useState({
     personal: {
@@ -172,6 +180,386 @@ const ResumeBuilder = () => {
 
   const { personal, experience, education, skills, projects } = resumeData;
 
+  const renderTemplate = () => {
+    const emptyState = !personal.fullName && experience.length === 0 && education.length === 0 &&
+      skills.length === 0 && projects.length === 0;
+
+    if (selectedTemplate === 'modern') {
+      return (
+        <div className="resume-paper resume-modern" ref={resumeRef}>
+          <div className="resume-modern-sidebar">
+            <div className="resume-modern-name-block">
+              <h1>{personal.fullName || 'Your Name'}</h1>
+              {personal.title && <p>{personal.title}</p>}
+            </div>
+            <div className="resume-modern-contact-block">
+              <h3>CONTACT</h3>
+              {personal.email && <div><Mail size={11} /><span>{personal.email}</span></div>}
+              {personal.phone && <div><Phone size={11} /><span>{personal.phone}</span></div>}
+              {personal.location && <div><MapPin size={11} /><span>{personal.location}</span></div>}
+              {personal.linkedin && <div><Linkedin size={11} /><span>{personal.linkedin}</span></div>}
+              {personal.github && <div><Github size={11} /><span>{personal.github}</span></div>}
+              {personal.website && <div><Globe size={11} /><span>{personal.website}</span></div>}
+            </div>
+            {skills.length > 0 && (
+              <div className="resume-modern-contact-block">
+                <h3>SKILLS</h3>
+                {skills.map((skill, i) => (
+                  <div key={i} className="resume-modern-skill-item">{skill}</div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="resume-modern-main">
+            {personal.summary && (
+              <div className="resume-section">
+                <h2 className="resume-section-title rmt">Summary</h2>
+                <p className="resume-summary">{personal.summary}</p>
+              </div>
+            )}
+            {experience.length > 0 && (
+              <div className="resume-section">
+                <h2 className="resume-section-title rmt">Experience</h2>
+                {experience.map(exp => (
+                  <div key={exp.id} className="resume-entry">
+                    <div className="resume-entry-header">
+                      <div>
+                        <h3>{exp.position || 'Position'}</h3>
+                        <p className="resume-company">{exp.company || 'Company'}</p>
+                      </div>
+                      <span className="resume-date">{exp.startDate || 'Start'} – {exp.current ? 'Present' : (exp.endDate || 'End')}</span>
+                    </div>
+                    {exp.description && <p className="resume-description">{exp.description}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+            {education.length > 0 && (
+              <div className="resume-section">
+                <h2 className="resume-section-title rmt">Education</h2>
+                {education.map(edu => (
+                  <div key={edu.id} className="resume-entry">
+                    <div className="resume-entry-header">
+                      <div>
+                        <h3>{edu.degree || 'Degree'}{edu.field ? ` in ${edu.field}` : ''}</h3>
+                        <p className="resume-company">{edu.institution || 'Institution'}</p>
+                      </div>
+                      <div className="resume-date-group">
+                        <span className="resume-date">{edu.startDate || 'Start'} – {edu.endDate || 'End'}</span>
+                        {edu.gpa && <span className="resume-gpa">GPA: {edu.gpa}</span>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {projects.length > 0 && (
+              <div className="resume-section">
+                <h2 className="resume-section-title rmt">Projects</h2>
+                {projects.map(proj => (
+                  <div key={proj.id} className="resume-entry">
+                    <div className="resume-entry-header">
+                      <div>
+                        <h3>{proj.name || 'Project Name'}</h3>
+                        {proj.technologies && <p className="resume-tech">{proj.technologies}</p>}
+                      </div>
+                      {proj.link && <span className="resume-date">{proj.link}</span>}
+                    </div>
+                    {proj.description && <p className="resume-description">{proj.description}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+            {emptyState && (
+              <div className="resume-empty">
+                <FileText size={48} strokeWidth={1} />
+                <p>Start filling in your details to see your resume come to life!</p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    if (selectedTemplate === 'minimal') {
+      return (
+        <div className="resume-paper resume-minimal" ref={resumeRef}>
+          <div className="resume-minimal-header">
+            <h1>{personal.fullName || 'Your Name'}</h1>
+            {personal.title && <p className="resume-minimal-title">{personal.title}</p>}
+            <div className="resume-minimal-contact">
+              {personal.email && <span>{personal.email}</span>}
+              {personal.phone && <span>{personal.phone}</span>}
+              {personal.location && <span>{personal.location}</span>}
+              {personal.linkedin && <span>{personal.linkedin}</span>}
+              {personal.github && <span>{personal.github}</span>}
+            </div>
+          </div>
+          {personal.summary && (
+            <div className="resume-minimal-section">
+              <h2>Profile</h2>
+              <p className="resume-summary">{personal.summary}</p>
+            </div>
+          )}
+          {experience.length > 0 && (
+            <div className="resume-minimal-section">
+              <h2>Experience</h2>
+              {experience.map(exp => (
+                <div key={exp.id} className="resume-entry">
+                  <div className="resume-entry-header">
+                    <div>
+                      <h3>{exp.position || 'Position'}</h3>
+                      <p className="resume-company">{exp.company || 'Company'}</p>
+                    </div>
+                    <span className="resume-date">{exp.startDate || 'Start'} – {exp.current ? 'Present' : (exp.endDate || 'End')}</span>
+                  </div>
+                  {exp.description && <p className="resume-description">{exp.description}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+          {education.length > 0 && (
+            <div className="resume-minimal-section">
+              <h2>Education</h2>
+              {education.map(edu => (
+                <div key={edu.id} className="resume-entry">
+                  <div className="resume-entry-header">
+                    <div>
+                      <h3>{edu.degree || 'Degree'}{edu.field ? ` in ${edu.field}` : ''}</h3>
+                      <p className="resume-company">{edu.institution || 'Institution'}</p>
+                    </div>
+                    <div className="resume-date-group">
+                      <span className="resume-date">{edu.startDate || 'Start'} – {edu.endDate || 'End'}</span>
+                      {edu.gpa && <span className="resume-gpa">{edu.gpa}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {skills.length > 0 && (
+            <div className="resume-minimal-section">
+              <h2>Skills</h2>
+              <p className="resume-minimal-skills">{skills.join(' · ')}</p>
+            </div>
+          )}
+          {projects.length > 0 && (
+            <div className="resume-minimal-section">
+              <h2>Projects</h2>
+              {projects.map(proj => (
+                <div key={proj.id} className="resume-entry">
+                  <div className="resume-entry-header">
+                    <div>
+                      <h3>{proj.name || 'Project Name'}</h3>
+                      {proj.technologies && <p className="resume-company">{proj.technologies}</p>}
+                    </div>
+                    {proj.link && <span className="resume-date">{proj.link}</span>}
+                  </div>
+                  {proj.description && <p className="resume-description">{proj.description}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+          {emptyState && (
+            <div className="resume-empty">
+              <FileText size={48} strokeWidth={1} />
+              <p>Start filling in your details to see your resume come to life!</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (selectedTemplate === 'executive') {
+      return (
+        <div className="resume-paper resume-executive" ref={resumeRef}>
+          <div className="resume-executive-header">
+            <div>
+              <h1>{personal.fullName || 'Your Name'}</h1>
+              {personal.title && <p>{personal.title}</p>}
+            </div>
+            <div className="resume-executive-contact">
+              {personal.email && <span><Mail size={11} />{personal.email}</span>}
+              {personal.phone && <span><Phone size={11} />{personal.phone}</span>}
+              {personal.location && <span><MapPin size={11} />{personal.location}</span>}
+              {personal.linkedin && <span><Linkedin size={11} />{personal.linkedin}</span>}
+              {personal.github && <span><Github size={11} />{personal.github}</span>}
+            </div>
+          </div>
+          <div className="resume-executive-body">
+            <div className="resume-executive-left">
+              {education.length > 0 && (
+                <div className="resume-exec-section">
+                  <h2>Education</h2>
+                  {education.map(edu => (
+                    <div key={edu.id} className="resume-entry" style={{ marginBottom: '0.7rem' }}>
+                      <h3>{edu.degree || 'Degree'}</h3>
+                      {edu.field && <p className="resume-company">{edu.field}</p>}
+                      <p className="resume-company">{edu.institution || 'Institution'}</p>
+                      <span className="resume-date">{edu.startDate} – {edu.endDate || 'Present'}</span>
+                      {edu.gpa && <div className="resume-gpa">GPA {edu.gpa}</div>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {skills.length > 0 && (
+                <div className="resume-exec-section">
+                  <h2>Skills</h2>
+                  {skills.map((skill, i) => (
+                    <div key={i} className="resume-exec-skill">{skill}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="resume-executive-right">
+              {personal.summary && (
+                <div className="resume-exec-section">
+                  <h2>Executive Summary</h2>
+                  <p className="resume-summary">{personal.summary}</p>
+                </div>
+              )}
+              {experience.length > 0 && (
+                <div className="resume-exec-section">
+                  <h2>Professional Experience</h2>
+                  {experience.map(exp => (
+                    <div key={exp.id} className="resume-entry">
+                      <div className="resume-entry-header">
+                        <div>
+                          <h3>{exp.position || 'Position'}</h3>
+                          <p className="resume-company">{exp.company || 'Company'}</p>
+                        </div>
+                        <span className="resume-date">{exp.startDate || 'Start'} – {exp.current ? 'Present' : (exp.endDate || 'End')}</span>
+                      </div>
+                      {exp.description && <p className="resume-description">{exp.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {projects.length > 0 && (
+                <div className="resume-exec-section">
+                  <h2>Key Projects</h2>
+                  {projects.map(proj => (
+                    <div key={proj.id} className="resume-entry">
+                      <div className="resume-entry-header">
+                        <div>
+                          <h3>{proj.name || 'Project Name'}</h3>
+                          {proj.technologies && <p className="resume-tech">{proj.technologies}</p>}
+                        </div>
+                        {proj.link && <span className="resume-date">{proj.link}</span>}
+                      </div>
+                      {proj.description && <p className="resume-description">{proj.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          {emptyState && (
+            <div className="resume-empty">
+              <FileText size={48} strokeWidth={1} />
+              <p>Start filling in your details to see your resume come to life!</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Classic (default)
+    return (
+      <div className="resume-paper" ref={resumeRef}>
+        <div className="resume-header">
+          <h1 className="resume-name">{personal.fullName || 'Your Name'}</h1>
+          {personal.title && <p className="resume-title">{personal.title}</p>}
+          <div className="resume-contact">
+            {personal.email && <span><Mail size={12} /> {personal.email}</span>}
+            {personal.phone && <span><Phone size={12} /> {personal.phone}</span>}
+            {personal.location && <span><MapPin size={12} /> {personal.location}</span>}
+          </div>
+          <div className="resume-links">
+            {personal.linkedin && <span><Linkedin size={12} /> {personal.linkedin}</span>}
+            {personal.github && <span><Github size={12} /> {personal.github}</span>}
+            {personal.website && <span><Globe size={12} /> {personal.website}</span>}
+          </div>
+        </div>
+        {personal.summary && (
+          <div className="resume-section">
+            <h2 className="resume-section-title">Professional Summary</h2>
+            <p className="resume-summary">{personal.summary}</p>
+          </div>
+        )}
+        {experience.length > 0 && (
+          <div className="resume-section">
+            <h2 className="resume-section-title">Work Experience</h2>
+            {experience.map(exp => (
+              <div key={exp.id} className="resume-entry">
+                <div className="resume-entry-header">
+                  <div>
+                    <h3>{exp.position || 'Position'}</h3>
+                    <p className="resume-company">{exp.company || 'Company'}</p>
+                  </div>
+                  <span className="resume-date">{exp.startDate || 'Start'} - {exp.current ? 'Present' : (exp.endDate || 'End')}</span>
+                </div>
+                {exp.description && <p className="resume-description">{exp.description}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+        {education.length > 0 && (
+          <div className="resume-section">
+            <h2 className="resume-section-title">Education</h2>
+            {education.map(edu => (
+              <div key={edu.id} className="resume-entry">
+                <div className="resume-entry-header">
+                  <div>
+                    <h3>{edu.degree || 'Degree'}{edu.field ? ` in ${edu.field}` : ''}</h3>
+                    <p className="resume-company">{edu.institution || 'Institution'}</p>
+                  </div>
+                  <div className="resume-date-group">
+                    <span className="resume-date">{edu.startDate || 'Start'} - {edu.endDate || 'End'}</span>
+                    {edu.gpa && <span className="resume-gpa">GPA: {edu.gpa}</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {skills.length > 0 && (
+          <div className="resume-section">
+            <h2 className="resume-section-title">Skills</h2>
+            <div className="resume-skills">
+              {skills.map((skill, i) => (
+                <span key={i} className="resume-skill">{skill}</span>
+              ))}
+            </div>
+          </div>
+        )}
+        {projects.length > 0 && (
+          <div className="resume-section">
+            <h2 className="resume-section-title">Projects</h2>
+            {projects.map(proj => (
+              <div key={proj.id} className="resume-entry">
+                <div className="resume-entry-header">
+                  <div>
+                    <h3>{proj.name || 'Project Name'}</h3>
+                    {proj.technologies && <p className="resume-tech">{proj.technologies}</p>}
+                  </div>
+                  {proj.link && <span className="resume-date">{proj.link}</span>}
+                </div>
+                {proj.description && <p className="resume-description">{proj.description}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+        {emptyState && (
+          <div className="resume-empty">
+            <FileText size={48} strokeWidth={1} />
+            <p>Start filling in your details to see your resume come to life!</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="builder-page">
       <div className="builder-header">
@@ -221,72 +609,96 @@ const ResumeBuilder = () => {
                 <h2><User size={20} /> Personal Information</h2>
                 <div className="form-grid">
                   <div className="builder-field">
-                    <label>Full Name</label>
+                    <label htmlFor="full-name">Full Name</label>
                     <input
+                      id="full-name"
+                      name="full-name"
                       type="text"
+                      autoComplete="name"
                       value={personal.fullName}
                       onChange={(e) => updatePersonal('fullName', e.target.value)}
                       placeholder="John Doe"
                     />
                   </div>
                   <div className="builder-field">
-                    <label>Professional Title</label>
+                    <label htmlFor="job-title">Professional Title</label>
                     <input
+                      id="job-title"
+                      name="job-title"
                       type="text"
+                      autoComplete="organization-title"
                       value={personal.title}
                       onChange={(e) => updatePersonal('title', e.target.value)}
                       placeholder="Senior Software Engineer"
                     />
                   </div>
                   <div className="builder-field">
-                    <label>Email</label>
+                    <label htmlFor="email">Email</label>
                     <input
+                      id="email"
+                      name="email"
                       type="email"
+                      autoComplete="email"
                       value={personal.email}
                       onChange={(e) => updatePersonal('email', e.target.value)}
                       placeholder="john@example.com"
                     />
                   </div>
                   <div className="builder-field">
-                    <label>Phone</label>
+                    <label htmlFor="phone">Phone</label>
                     <input
+                      id="phone"
+                      name="phone"
                       type="tel"
+                      autoComplete="tel"
                       value={personal.phone}
                       onChange={(e) => updatePersonal('phone', e.target.value)}
                       placeholder="+1 (555) 123-4567"
                     />
                   </div>
                   <div className="builder-field">
-                    <label>Location</label>
+                    <label htmlFor="location">Location</label>
                     <input
+                      id="location"
+                      name="location"
                       type="text"
+                      autoComplete="address-level2"
                       value={personal.location}
                       onChange={(e) => updatePersonal('location', e.target.value)}
                       placeholder="San Francisco, CA"
                     />
                   </div>
                   <div className="builder-field">
-                    <label>LinkedIn</label>
+                    <label htmlFor="linkedin-url">LinkedIn</label>
                     <input
-                      type="text"
+                      id="linkedin-url"
+                      name="linkedin-url"
+                      type="url"
+                      autoComplete="url"
                       value={personal.linkedin}
                       onChange={(e) => updatePersonal('linkedin', e.target.value)}
                       placeholder="linkedin.com/in/johndoe"
                     />
                   </div>
                   <div className="builder-field">
-                    <label>GitHub</label>
+                    <label htmlFor="github-url">GitHub</label>
                     <input
-                      type="text"
+                      id="github-url"
+                      name="github-url"
+                      type="url"
+                      autoComplete="url"
                       value={personal.github}
                       onChange={(e) => updatePersonal('github', e.target.value)}
                       placeholder="github.com/johndoe"
                     />
                   </div>
                   <div className="builder-field">
-                    <label>Website</label>
+                    <label htmlFor="website">Website</label>
                     <input
-                      type="text"
+                      id="website"
+                      name="website"
+                      type="url"
+                      autoComplete="url"
                       value={personal.website}
                       onChange={(e) => updatePersonal('website', e.target.value)}
                       placeholder="johndoe.com"
@@ -294,8 +706,10 @@ const ResumeBuilder = () => {
                   </div>
                 </div>
                 <div className="builder-field full-width">
-                  <label>Professional Summary</label>
+                  <label htmlFor="summary">Professional Summary</label>
                   <textarea
+                    id="summary"
+                    name="summary"
                     value={personal.summary}
                     onChange={(e) => updatePersonal('summary', e.target.value)}
                     placeholder="A brief summary of your professional background, key achievements, and career objectives..."
@@ -330,26 +744,34 @@ const ResumeBuilder = () => {
                     </div>
                     <div className="form-grid">
                       <div className="builder-field">
-                        <label>Company</label>
+                        <label htmlFor={`exp-company-${exp.id}`}>Company</label>
                         <input
+                          id={`exp-company-${exp.id}`}
+                          name="company"
                           type="text"
+                          autoComplete="organization"
                           value={exp.company}
                           onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
                           placeholder="Google Inc."
                         />
                       </div>
                       <div className="builder-field">
-                        <label>Position</label>
+                        <label htmlFor={`exp-position-${exp.id}`}>Position</label>
                         <input
+                          id={`exp-position-${exp.id}`}
+                          name="position"
                           type="text"
+                          autoComplete="organization-title"
                           value={exp.position}
                           onChange={(e) => updateExperience(exp.id, 'position', e.target.value)}
                           placeholder="Senior Software Engineer"
                         />
                       </div>
                       <div className="builder-field">
-                        <label>Start Date</label>
+                        <label htmlFor={`exp-start-${exp.id}`}>Start Date</label>
                         <input
+                          id={`exp-start-${exp.id}`}
+                          name="start-date"
                           type="text"
                           value={exp.startDate}
                           onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
@@ -357,8 +779,10 @@ const ResumeBuilder = () => {
                         />
                       </div>
                       <div className="builder-field">
-                        <label>End Date</label>
+                        <label htmlFor={`exp-end-${exp.id}`}>End Date</label>
                         <input
+                          id={`exp-end-${exp.id}`}
+                          name="end-date"
                           type="text"
                           value={exp.current ? 'Present' : exp.endDate}
                           onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
@@ -368,6 +792,7 @@ const ResumeBuilder = () => {
                         <label className="checkbox-label">
                           <input
                             type="checkbox"
+                            name={`exp-current-${exp.id}`}
                             checked={exp.current}
                             onChange={(e) => updateExperience(exp.id, 'current', e.target.checked)}
                           />
@@ -376,8 +801,10 @@ const ResumeBuilder = () => {
                       </div>
                     </div>
                     <div className="builder-field full-width">
-                      <label>Description</label>
+                      <label htmlFor={`exp-desc-${exp.id}`}>Description</label>
                       <textarea
+                        id={`exp-desc-${exp.id}`}
+                        name="job-description"
                         value={exp.description}
                         onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
                         placeholder="Describe your responsibilities, achievements, and impact..."
@@ -577,137 +1004,23 @@ const ResumeBuilder = () => {
         {/* Live Preview */}
         {showPreview && (
           <div className="builder-preview">
-            <div className="preview-label">Live Preview</div>
-            <div className="preview-scroll">
-              <div className="resume-paper" ref={resumeRef}>
-                {/* Header */}
-                <div className="resume-header">
-                  <h1 className="resume-name">{personal.fullName || 'Your Name'}</h1>
-                  {personal.title && <p className="resume-title">{personal.title}</p>}
-                  <div className="resume-contact">
-                    {personal.email && (
-                      <span><Mail size={12} /> {personal.email}</span>
-                    )}
-                    {personal.phone && (
-                      <span><Phone size={12} /> {personal.phone}</span>
-                    )}
-                    {personal.location && (
-                      <span><MapPin size={12} /> {personal.location}</span>
-                    )}
-                  </div>
-                  <div className="resume-links">
-                    {personal.linkedin && (
-                      <span><Linkedin size={12} /> {personal.linkedin}</span>
-                    )}
-                    {personal.github && (
-                      <span><Github size={12} /> {personal.github}</span>
-                    )}
-                    {personal.website && (
-                      <span><Globe size={12} /> {personal.website}</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Summary */}
-                {personal.summary && (
-                  <div className="resume-section">
-                    <h2 className="resume-section-title">Professional Summary</h2>
-                    <p className="resume-summary">{personal.summary}</p>
-                  </div>
-                )}
-
-                {/* Experience */}
-                {experience.length > 0 && (
-                  <div className="resume-section">
-                    <h2 className="resume-section-title">Work Experience</h2>
-                    {experience.map(exp => (
-                      <div key={exp.id} className="resume-entry">
-                        <div className="resume-entry-header">
-                          <div>
-                            <h3>{exp.position || 'Position'}</h3>
-                            <p className="resume-company">{exp.company || 'Company'}</p>
-                          </div>
-                          <span className="resume-date">
-                            {exp.startDate || 'Start'} - {exp.current ? 'Present' : (exp.endDate || 'End')}
-                          </span>
-                        </div>
-                        {exp.description && (
-                          <p className="resume-description">{exp.description}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Education */}
-                {education.length > 0 && (
-                  <div className="resume-section">
-                    <h2 className="resume-section-title">Education</h2>
-                    {education.map(edu => (
-                      <div key={edu.id} className="resume-entry">
-                        <div className="resume-entry-header">
-                          <div>
-                            <h3>{edu.degree || 'Degree'}{edu.field ? ` in ${edu.field}` : ''}</h3>
-                            <p className="resume-company">{edu.institution || 'Institution'}</p>
-                          </div>
-                          <div className="resume-date-group">
-                            <span className="resume-date">
-                              {edu.startDate || 'Start'} - {edu.endDate || 'End'}
-                            </span>
-                            {edu.gpa && <span className="resume-gpa">GPA: {edu.gpa}</span>}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Skills */}
-                {skills.length > 0 && (
-                  <div className="resume-section">
-                    <h2 className="resume-section-title">Skills</h2>
-                    <div className="resume-skills">
-                      {skills.map((skill, i) => (
-                        <span key={i} className="resume-skill">{skill}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Projects */}
-                {projects.length > 0 && (
-                  <div className="resume-section">
-                    <h2 className="resume-section-title">Projects</h2>
-                    {projects.map(proj => (
-                      <div key={proj.id} className="resume-entry">
-                        <div className="resume-entry-header">
-                          <div>
-                            <h3>{proj.name || 'Project Name'}</h3>
-                            {proj.technologies && (
-                              <p className="resume-tech">{proj.technologies}</p>
-                            )}
-                          </div>
-                          {proj.link && (
-                            <span className="resume-date">{proj.link}</span>
-                          )}
-                        </div>
-                        {proj.description && (
-                          <p className="resume-description">{proj.description}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Empty state */}
-                {!personal.fullName && experience.length === 0 && education.length === 0 &&
-                  skills.length === 0 && projects.length === 0 && (
-                  <div className="resume-empty">
-                    <FileText size={48} strokeWidth={1} />
-                    <p>Start filling in your details to see your resume come to life!</p>
-                  </div>
-                )}
+            <div className="preview-header">
+              <span className="preview-label-text">Live Preview</span>
+              <div className="template-selector">
+                {templates.map(t => (
+                  <button
+                    key={t.id}
+                    className={`template-btn ${selectedTemplate === t.id ? 'active' : ''}`}
+                    onClick={() => setSelectedTemplate(t.id)}
+                    style={{ '--t-accent': t.accent }}
+                  >
+                    {t.name}
+                  </button>
+                ))}
               </div>
+            </div>
+            <div className="preview-scroll">
+              {renderTemplate()}
             </div>
           </div>
         )}

@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight, Sparkles, Zap, Shield, Download, Star, Users, FileText,
-  CheckCircle, Layout, Palette, Globe, Award, TrendingUp, ChevronRight
+  CheckCircle, Layout, Palette, Globe, Award, TrendingUp, ChevronRight,
+  Target, BookOpen, Clock
 } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import './Home.css';
@@ -12,32 +13,47 @@ const Home = () => {
     {
       icon: <Layout size={28} />,
       title: 'Live Preview Editor',
-      description: 'See your resume take shape in real-time as you type. Our split-screen editor shows instant changes with pixel-perfect accuracy.',
+      description: 'Watch your resume update instantly as you type. Our split-screen editor renders changes in real-time — no lag, no surprises. What you see is exactly what gets exported.',
     },
     {
       icon: <Palette size={28} />,
-      title: 'Premium Templates',
-      description: 'Choose from professionally designed templates crafted by hiring experts. Each template is ATS-optimized and visually stunning.',
+      title: '4 Professional Templates',
+      description: 'Pick from Classic, Modern Sidebar, Minimal, and Executive layouts — each crafted by hiring professionals and tested against real recruiter feedback across 50+ industries.',
     },
     {
       icon: <Download size={28} />,
       title: 'One-Click PDF Export',
-      description: 'Download your polished resume as a high-quality PDF instantly. Print-ready formatting ensures your resume looks perfect every time.',
+      description: 'Export a pixel-perfect, print-ready PDF in seconds. A4 formatting, crisp fonts, and consistent margins are locked in so your resume looks flawless whether printed or emailed.',
     },
     {
       icon: <Shield size={28} />,
       title: 'ATS-Friendly Design',
-      description: 'Every template passes through major Applicant Tracking Systems. Never worry about your resume being filtered out again.',
+      description: 'All templates are tested against top Applicant Tracking Systems including Workday, Greenhouse, and Lever. Your resume clears the automation filter before a human even sees it.',
     },
     {
       icon: <Globe size={28} />,
       title: 'Portfolio Websites',
-      description: 'Generate a stunning portfolio website from your resume data. Share your professional story with a unique link.',
+      description: 'Convert your resume into a shareable portfolio page with a unique URL. Ideal for developers, designers, and creatives who want to make a stronger impression than a PDF alone.',
     },
     {
       icon: <Zap size={28} />,
-      title: 'Smart Suggestions',
-      description: 'Get intelligent content suggestions powered by industry best practices. Optimize your bullet points for maximum impact.',
+      title: 'Smart Content Suggestions',
+      description: 'Our suggestion engine draws from thousands of successful resumes to help you write stronger bullet points, quantify your impact, and use the exact keywords recruiters search for.',
+    },
+    {
+      icon: <Target size={28} />,
+      title: 'Resume Score & Insights',
+      description: 'Get a detailed ATS compatibility score, keyword density analysis, and section completeness check before you apply. Know exactly what to fix to maximize your chances of getting a callback.',
+    },
+    {
+      icon: <BookOpen size={28} />,
+      title: 'Cover Letter Builder',
+      description: 'Create a polished cover letter that matches your resume\'s tone and layout in minutes. Customizable opening lines, skill highlights, and closings make every application feel personal.',
+    },
+    {
+      icon: <Clock size={28} />,
+      title: 'Version History',
+      description: 'Maintain separate resume versions for different roles — tech, finance, creative, or management. Switch between them instantly and track every edit so nothing is ever lost.',
     },
   ];
 
