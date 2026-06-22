@@ -27,6 +27,40 @@ const ResumeBuilder = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const templates = [
+    { id: 'classic',   name: 'Classic',   accent: '#2563eb', label: 'Blue centered header' },
+    { id: 'modern',    name: 'Modern',    accent: '#6366f1', label: 'Indigo sidebar layout' },
+    { id: 'minimal',   name: 'Minimal',   accent: '#1a1a1a', label: 'Clean serif typography' },
+    { id: 'executive', name: 'Executive', accent: '#0f172a', label: 'Dark header, two columns' },
+    { id: 'creative',  name: 'Creative',  accent: '#7c3aed', label: 'Gradient header, vivid accents' },
+    { id: 'corporate', name: 'Corporate', accent: '#b45309', label: 'Formal, amber accents' },
+    { id: 'card',      name: 'Card',      accent: '#0891b2', label: 'Section cards, teal accents' },
+  ];
+
+  const [resumeData, setResumeData] = useState({
+    personal: {
+      fullName: '',
+      title: '',
+      email: '',
+      phone: '',
+      location: '',
+      summary: '',
+      linkedin: '',
+      github: '',
+      website: '',
+    },
+    experience: [],
+    education: [],
+    skills: [],
+    projects: [],
+    customSections: [],
+  });
+
+  const [newSkill, setNewSkill] = useState('');
+  const [pageCount, setPageCount] = useState(1);
+  const [sectionOrder, setSectionOrder] = useState(['experience', 'education', 'skills', 'projects', 'custom']);
+  const [pageCuts, setPageCuts] = useState([0]);
+
   useEffect(() => {
     if (pageCount <= 1) {
       setPageCuts([0]);
@@ -70,40 +104,6 @@ const ResumeBuilder = () => {
       return cuts;
     });
   }, [pageCount, resumeData, selectedTemplate, sectionOrder]);
-
-  const templates = [
-    { id: 'classic',   name: 'Classic',   accent: '#2563eb', label: 'Blue centered header' },
-    { id: 'modern',    name: 'Modern',    accent: '#6366f1', label: 'Indigo sidebar layout' },
-    { id: 'minimal',   name: 'Minimal',   accent: '#1a1a1a', label: 'Clean serif typography' },
-    { id: 'executive', name: 'Executive', accent: '#0f172a', label: 'Dark header, two columns' },
-    { id: 'creative',  name: 'Creative',  accent: '#7c3aed', label: 'Gradient header, vivid accents' },
-    { id: 'corporate', name: 'Corporate', accent: '#b45309', label: 'Formal, amber accents' },
-    { id: 'card',      name: 'Card',      accent: '#0891b2', label: 'Section cards, teal accents' },
-  ];
-
-  const [resumeData, setResumeData] = useState({
-    personal: {
-      fullName: '',
-      title: '',
-      email: '',
-      phone: '',
-      location: '',
-      summary: '',
-      linkedin: '',
-      github: '',
-      website: '',
-    },
-    experience: [],
-    education: [],
-    skills: [],
-    projects: [],
-    customSections: [],
-  });
-
-  const [newSkill, setNewSkill] = useState('');
-  const [pageCount, setPageCount] = useState(1);
-  const [sectionOrder, setSectionOrder] = useState(['experience', 'education', 'skills', 'projects', 'custom']);
-  const [pageCuts, setPageCuts] = useState([0]);
 
   const updatePersonal = (field, value) => {
     setResumeData(prev => ({
