@@ -27,6 +27,50 @@ const ResumeBuilder = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (pageCount <= 1) {
+      setPageCuts([0]);
+      return;
+    }
+    const frameEl = pageRefs.current[0];
+    if (!frameEl) return;
+    const paperEl = frameEl.querySelector('.resume-paper');
+    if (!paperEl) return;
+    const paperRect = paperEl.getBoundingClientRect();
+    if (paperRect.width === 0) return;
+
+    const sectionEls = Array.from(paperEl.querySelectorAll(
+      '.resume-section, .resume-minimal-section, .resume-exec-section, ' +
+      '.resume-creative-section, .resume-corp-section, .resume-card-block, .resume-entry'
+    ));
+
+    const rects = sectionEls.map(el => {
+      const r = el.getBoundingClientRect();
+      return { top: r.top - paperRect.top, bottom: r.bottom - paperRect.top };
+    });
+
+    const cuts = [0];
+    for (let page = 1; page < pageCount; page++) {
+      const nominal = page * 1050;
+      const prevCut = cuts[cuts.length - 1];
+      let cut = nominal;
+
+      for (const rect of rects) {
+        if (rect.top < nominal && rect.bottom > nominal && rect.top > prevCut) {
+          cut = Math.min(cut, rect.top);
+        }
+      }
+
+      if (cut <= prevCut) cut = nominal;
+      cuts.push(cut);
+    }
+
+    setPageCuts(prev => {
+      if (prev.length === cuts.length && prev.every((c, i) => Math.abs(c - cuts[i]) < 1)) return prev;
+      return cuts;
+    });
+  }, [pageCount, resumeData, selectedTemplate, sectionOrder]);
+
   const templates = [
     { id: 'classic',   name: 'Classic',   accent: '#2563eb', label: 'Blue centered header' },
     { id: 'modern',    name: 'Modern',    accent: '#6366f1', label: 'Indigo sidebar layout' },
@@ -59,6 +103,7 @@ const ResumeBuilder = () => {
   const [newSkill, setNewSkill] = useState('');
   const [pageCount, setPageCount] = useState(1);
   const [sectionOrder, setSectionOrder] = useState(['experience', 'education', 'skills', 'projects', 'custom']);
+  const [pageCuts, setPageCuts] = useState([0]);
 
   const updatePersonal = (field, value) => {
     setResumeData(prev => ({
@@ -231,13 +276,16 @@ const ResumeBuilder = () => {
 
   const renderPages = (buildContent) => (
     <div className="resume-pages-container">
-      {Array.from({ length: pageCount }, (_, i) => (
-        <div key={i} className="resume-page-frame" ref={el => { pageRefs.current[i] = el; }}>
-          <div style={{ transform: `translateY(-${i * 1050}px)` }}>
-            {buildContent()}
+      {Array.from({ length: pageCount }, (_, i) => {
+        const offset = pageCuts[i] != null ? pageCuts[i] : i * 1050;
+        return (
+          <div key={i} className="resume-page-frame" ref={el => { pageRefs.current[i] = el; }}>
+            <div style={{ transform: `translateY(-${offset}px)` }}>
+              {buildContent()}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 
