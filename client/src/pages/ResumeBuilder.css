@@ -1310,3 +1310,102 @@
   margin-bottom: 0.25rem;
   line-height: 1.5;
 }
+
+/* ============ SECTION FLOW (ordering) ============ */
+.sections-flow {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============ NAV REORDER BUTTONS ============ */
+.form-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.form-nav-reorder {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.form-nav-item:hover .form-nav-reorder {
+  opacity: 1;
+}
+
+.reorder-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.reorder-btn:hover:not(:disabled) {
+  background: var(--accent-primary);
+  color: #fff;
+}
+
+.reorder-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* ============ PAGE COUNT CONTROL ============ */
+.page-count-control {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+}
+
+.page-count-btn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 5px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.page-count-btn:hover:not(:disabled) {
+  background: var(--accent-primary);
+  color: #fff;
+  border-color: var(--accent-primary);
+}
+
+.page-count-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.page-count-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  min-width: 44px;
+  text-align: center;
+}

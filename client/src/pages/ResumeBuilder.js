@@ -57,6 +57,8 @@ const ResumeBuilder = () => {
   });
 
   const [newSkill, setNewSkill] = useState('');
+  const [pageCount, setPageCount] = useState(1);
+  const [sectionOrder, setSectionOrder] = useState(['experience', 'education', 'skills', 'projects', 'custom']);
 
   const updatePersonal = (field, value) => {
     setResumeData(prev => ({
@@ -207,6 +209,35 @@ const ResumeBuilder = () => {
     }));
   };
 
+  const moveSectionUp = (id) => {
+    setSectionOrder(prev => {
+      const idx = prev.indexOf(id);
+      if (idx <= 0) return prev;
+      const next = [...prev];
+      [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+      return next;
+    });
+  };
+
+  const moveSectionDown = (id) => {
+    setSectionOrder(prev => {
+      const idx = prev.indexOf(id);
+      if (idx >= prev.length - 1) return prev;
+      const next = [...prev];
+      [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+      return next;
+    });
+  };
+
+  const pageBreaks = (count) => Array.from({ length: count - 1 }, (_, i) => (
+    <div key={`pb-${i}`} style={{
+      position: 'absolute', left: 0, right: 0,
+      top: `${(i + 1) * 1050}px`,
+      borderTop: '2px dashed #94a3b8',
+      pointerEvents: 'none', zIndex: 10
+    }} />
+  ));
+
   const downloadPDF = async () => {
     if (!resumeRef.current) return;
     setIsDownloading(true);
@@ -223,7 +254,13 @@ const ResumeBuilder = () => {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      const pageH = pdf.internal.pageSize.getHeight();
+      let y = 0;
+      while (y < pdfHeight) {
+        if (y > 0) pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, -y, pdfWidth, pdfHeight);
+        y += pageH;
+      }
 
       const fileName = resumeData.personal.fullName
         ? `${resumeData.personal.fullName.replace(/\s+/g, '_')}_Resume.pdf`
@@ -253,7 +290,7 @@ const ResumeBuilder = () => {
 
     if (selectedTemplate === 'modern') {
       return (
-        <div className="resume-paper resume-modern" ref={resumeRef}>
+        <div className="resume-paper resume-modern" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-modern-sidebar">
             <div className="resume-modern-name-block">
               <h1>{personal.fullName || 'Your Name'}</h1>
@@ -284,8 +321,9 @@ const ResumeBuilder = () => {
                 <p className="resume-summary">{personal.summary}</p>
               </div>
             )}
+            <div className="sections-flow">
             {experience.length > 0 && (
-              <div className="resume-section">
+              <div className="resume-section" style={{ order: sectionOrder.indexOf('experience') }}>
                 <h2 className="resume-section-title rmt">Experience</h2>
                 {experience.map(exp => (
                   <div key={exp.id} className="resume-entry">
@@ -302,7 +340,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {education.length > 0 && (
-              <div className="resume-section">
+              <div className="resume-section" style={{ order: sectionOrder.indexOf('education') }}>
                 <h2 className="resume-section-title rmt">Education</h2>
                 {education.map(edu => (
                   <div key={edu.id} className="resume-entry">
@@ -321,7 +359,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {projects.length > 0 && (
-              <div className="resume-section">
+              <div className="resume-section" style={{ order: sectionOrder.indexOf('projects') }}>
                 <h2 className="resume-section-title rmt">Projects</h2>
                 {projects.map(proj => (
                   <div key={proj.id} className="resume-entry">
@@ -338,7 +376,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
-              <div key={sec.id} className="resume-section">
+              <div key={sec.id} className="resume-section" style={{ order: sectionOrder.indexOf('custom') }}>
                 <h2 className="resume-section-title rmt">{sec.title}</h2>
                 <ul className="resume-custom-list">
                   {sec.items.filter(i => i.content).map(item => (
@@ -347,6 +385,8 @@ const ResumeBuilder = () => {
                 </ul>
               </div>
             ))}
+            </div>
+            {pageBreaks(pageCount)}
             {emptyState && (
               <div className="resume-empty">
                 <FileText size={48} strokeWidth={1} />
@@ -360,7 +400,7 @@ const ResumeBuilder = () => {
 
     if (selectedTemplate === 'minimal') {
       return (
-        <div className="resume-paper resume-minimal" ref={resumeRef}>
+        <div className="resume-paper resume-minimal" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-minimal-header">
             <h1>{personal.fullName || 'Your Name'}</h1>
             {personal.title && <p className="resume-minimal-title">{personal.title}</p>}
@@ -378,8 +418,9 @@ const ResumeBuilder = () => {
               <p className="resume-summary">{personal.summary}</p>
             </div>
           )}
+          <div className="sections-flow">
           {experience.length > 0 && (
-            <div className="resume-minimal-section">
+            <div className="resume-minimal-section" style={{ order: sectionOrder.indexOf('experience') }}>
               <h2>Experience</h2>
               {experience.map(exp => (
                 <div key={exp.id} className="resume-entry">
@@ -396,7 +437,7 @@ const ResumeBuilder = () => {
             </div>
           )}
           {education.length > 0 && (
-            <div className="resume-minimal-section">
+            <div className="resume-minimal-section" style={{ order: sectionOrder.indexOf('education') }}>
               <h2>Education</h2>
               {education.map(edu => (
                 <div key={edu.id} className="resume-entry">
@@ -415,13 +456,13 @@ const ResumeBuilder = () => {
             </div>
           )}
           {skills.length > 0 && (
-            <div className="resume-minimal-section">
+            <div className="resume-minimal-section" style={{ order: sectionOrder.indexOf('skills') }}>
               <h2>Skills</h2>
               <p className="resume-minimal-skills">{skills.join(' · ')}</p>
             </div>
           )}
           {projects.length > 0 && (
-            <div className="resume-minimal-section">
+            <div className="resume-minimal-section" style={{ order: sectionOrder.indexOf('projects') }}>
               <h2>Projects</h2>
               {projects.map(proj => (
                 <div key={proj.id} className="resume-entry">
@@ -438,7 +479,7 @@ const ResumeBuilder = () => {
             </div>
           )}
           {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
-            <div key={sec.id} className="resume-minimal-section">
+            <div key={sec.id} className="resume-minimal-section" style={{ order: sectionOrder.indexOf('custom') }}>
               <h2>{sec.title}</h2>
               <ul className="resume-custom-list">
                 {sec.items.filter(i => i.content).map(item => (
@@ -447,6 +488,8 @@ const ResumeBuilder = () => {
               </ul>
             </div>
           ))}
+          </div>
+          {pageBreaks(pageCount)}
           {emptyState && (
             <div className="resume-empty">
               <FileText size={48} strokeWidth={1} />
@@ -459,7 +502,7 @@ const ResumeBuilder = () => {
 
     if (selectedTemplate === 'executive') {
       return (
-        <div className="resume-paper resume-executive" ref={resumeRef}>
+        <div className="resume-paper resume-executive" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-executive-header">
             <div>
               <h1>{personal.fullName || 'Your Name'}</h1>
@@ -505,8 +548,9 @@ const ResumeBuilder = () => {
                   <p className="resume-summary">{personal.summary}</p>
                 </div>
               )}
+              <div className="sections-flow">
               {experience.length > 0 && (
-                <div className="resume-exec-section">
+                <div className="resume-exec-section" style={{ order: sectionOrder.indexOf('experience') }}>
                   <h2>Professional Experience</h2>
                   {experience.map(exp => (
                     <div key={exp.id} className="resume-entry">
@@ -523,7 +567,7 @@ const ResumeBuilder = () => {
                 </div>
               )}
               {projects.length > 0 && (
-                <div className="resume-exec-section">
+                <div className="resume-exec-section" style={{ order: sectionOrder.indexOf('projects') }}>
                   <h2>Key Projects</h2>
                   {projects.map(proj => (
                     <div key={proj.id} className="resume-entry">
@@ -540,7 +584,7 @@ const ResumeBuilder = () => {
                 </div>
               )}
               {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
-                <div key={sec.id} className="resume-exec-section">
+                <div key={sec.id} className="resume-exec-section" style={{ order: sectionOrder.indexOf('custom') }}>
                   <h2>{sec.title}</h2>
                   <ul className="resume-custom-list">
                     {sec.items.filter(i => i.content).map(item => (
@@ -549,6 +593,8 @@ const ResumeBuilder = () => {
                   </ul>
                 </div>
               ))}
+              </div>
+              {pageBreaks(pageCount)}
             </div>
           </div>
           {emptyState && (
@@ -563,7 +609,7 @@ const ResumeBuilder = () => {
 
     if (selectedTemplate === 'creative') {
       return (
-        <div className="resume-paper resume-creative" ref={resumeRef}>
+        <div className="resume-paper resume-creative" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-creative-header">
             <div className="resume-creative-name">
               <h1>{personal.fullName || 'Your Name'}</h1>
@@ -585,8 +631,9 @@ const ResumeBuilder = () => {
                 <p className="resume-summary">{personal.summary}</p>
               </div>
             )}
+            <div className="sections-flow">
             {experience.length > 0 && (
-              <div className="resume-creative-section">
+              <div className="resume-creative-section" style={{ order: sectionOrder.indexOf('experience') }}>
                 <h2>Experience</h2>
                 {experience.map(exp => (
                   <div key={exp.id} className="resume-entry">
@@ -603,7 +650,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {education.length > 0 && (
-              <div className="resume-creative-section">
+              <div className="resume-creative-section" style={{ order: sectionOrder.indexOf('education') }}>
                 <h2>Education</h2>
                 {education.map(edu => (
                   <div key={edu.id} className="resume-entry">
@@ -622,7 +669,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {skills.length > 0 && (
-              <div className="resume-creative-section">
+              <div className="resume-creative-section" style={{ order: sectionOrder.indexOf('skills') }}>
                 <h2>Skills</h2>
                 <div className="resume-creative-skills">
                   {skills.map((skill, i) => (
@@ -632,7 +679,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {projects.length > 0 && (
-              <div className="resume-creative-section">
+              <div className="resume-creative-section" style={{ order: sectionOrder.indexOf('projects') }}>
                 <h2>Projects</h2>
                 {projects.map(proj => (
                   <div key={proj.id} className="resume-entry">
@@ -649,7 +696,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
-              <div key={sec.id} className="resume-creative-section">
+              <div key={sec.id} className="resume-creative-section" style={{ order: sectionOrder.indexOf('custom') }}>
                 <h2>{sec.title}</h2>
                 <ul className="resume-custom-list">
                   {sec.items.filter(i => i.content).map(item => (
@@ -658,6 +705,8 @@ const ResumeBuilder = () => {
                 </ul>
               </div>
             ))}
+            </div>
+            {pageBreaks(pageCount)}
             {emptyState && (
               <div className="resume-empty">
                 <FileText size={48} strokeWidth={1} />
@@ -671,7 +720,7 @@ const ResumeBuilder = () => {
 
     if (selectedTemplate === 'corporate') {
       return (
-        <div className="resume-paper resume-corporate" ref={resumeRef}>
+        <div className="resume-paper resume-corporate" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-corporate-header">
             <h1>{personal.fullName || 'Your Name'}</h1>
             {personal.title && <p className="resume-corporate-title">{personal.title}</p>}
@@ -690,8 +739,9 @@ const ResumeBuilder = () => {
               <p className="resume-summary">{personal.summary}</p>
             </div>
           )}
+          <div className="sections-flow">
           {experience.length > 0 && (
-            <div className="resume-corp-section">
+            <div className="resume-corp-section" style={{ order: sectionOrder.indexOf('experience') }}>
               <h2>Professional Experience</h2>
               {experience.map(exp => (
                 <div key={exp.id} className="resume-entry">
@@ -708,7 +758,7 @@ const ResumeBuilder = () => {
             </div>
           )}
           {education.length > 0 && (
-            <div className="resume-corp-section">
+            <div className="resume-corp-section" style={{ order: sectionOrder.indexOf('education') }}>
               <h2>Education</h2>
               {education.map(edu => (
                 <div key={edu.id} className="resume-entry">
@@ -727,7 +777,7 @@ const ResumeBuilder = () => {
             </div>
           )}
           {skills.length > 0 && (
-            <div className="resume-corp-section">
+            <div className="resume-corp-section" style={{ order: sectionOrder.indexOf('skills') }}>
               <h2>Core Competencies</h2>
               <div className="resume-corp-skills">
                 {skills.map((skill, i) => (
@@ -737,7 +787,7 @@ const ResumeBuilder = () => {
             </div>
           )}
           {projects.length > 0 && (
-            <div className="resume-corp-section">
+            <div className="resume-corp-section" style={{ order: sectionOrder.indexOf('projects') }}>
               <h2>Notable Projects</h2>
               {projects.map(proj => (
                 <div key={proj.id} className="resume-entry">
@@ -754,7 +804,7 @@ const ResumeBuilder = () => {
             </div>
           )}
           {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
-            <div key={sec.id} className="resume-corp-section">
+            <div key={sec.id} className="resume-corp-section" style={{ order: sectionOrder.indexOf('custom') }}>
               <h2>{sec.title}</h2>
               <ul className="resume-custom-list">
                 {sec.items.filter(i => i.content).map(item => (
@@ -763,6 +813,8 @@ const ResumeBuilder = () => {
               </ul>
             </div>
           ))}
+          </div>
+          {pageBreaks(pageCount)}
           {emptyState && (
             <div className="resume-empty">
               <FileText size={48} strokeWidth={1} />
@@ -775,7 +827,7 @@ const ResumeBuilder = () => {
 
     if (selectedTemplate === 'card') {
       return (
-        <div className="resume-paper resume-card" ref={resumeRef}>
+        <div className="resume-paper resume-card" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-card-header">
             <div className="resume-card-name">
               <h1>{personal.fullName || 'Your Name'}</h1>
@@ -797,8 +849,9 @@ const ResumeBuilder = () => {
                 <p className="resume-summary">{personal.summary}</p>
               </div>
             )}
+            <div className="sections-flow">
             {experience.length > 0 && (
-              <div className="resume-card-block">
+              <div className="resume-card-block" style={{ order: sectionOrder.indexOf('experience') }}>
                 <h2>Experience</h2>
                 {experience.map(exp => (
                   <div key={exp.id} className="resume-card-entry">
@@ -815,7 +868,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {education.length > 0 && (
-              <div className="resume-card-block">
+              <div className="resume-card-block" style={{ order: sectionOrder.indexOf('education') }}>
                 <h2>Education</h2>
                 {education.map(edu => (
                   <div key={edu.id} className="resume-card-entry">
@@ -834,7 +887,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {skills.length > 0 && (
-              <div className="resume-card-block">
+              <div className="resume-card-block" style={{ order: sectionOrder.indexOf('skills') }}>
                 <h2>Skills</h2>
                 <div className="resume-skills">
                   {skills.map((skill, i) => (
@@ -844,7 +897,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {projects.length > 0 && (
-              <div className="resume-card-block">
+              <div className="resume-card-block" style={{ order: sectionOrder.indexOf('projects') }}>
                 <h2>Projects</h2>
                 {projects.map(proj => (
                   <div key={proj.id} className="resume-card-entry">
@@ -861,7 +914,7 @@ const ResumeBuilder = () => {
               </div>
             )}
             {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
-              <div key={sec.id} className="resume-card-block">
+              <div key={sec.id} className="resume-card-block" style={{ order: sectionOrder.indexOf('custom') }}>
                 <h2>{sec.title}</h2>
                 <ul className="resume-custom-list">
                   {sec.items.filter(i => i.content).map(item => (
@@ -870,6 +923,8 @@ const ResumeBuilder = () => {
                 </ul>
               </div>
             ))}
+            </div>
+            {pageBreaks(pageCount)}
           </div>
           {emptyState && (
             <div className="resume-empty">
@@ -883,7 +938,7 @@ const ResumeBuilder = () => {
 
     // Classic (default)
     return (
-      <div className="resume-paper" ref={resumeRef}>
+      <div className="resume-paper" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
         <div className="resume-header">
           <h1 className="resume-name">{personal.fullName || 'Your Name'}</h1>
           {personal.title && <p className="resume-title">{personal.title}</p>}
@@ -904,8 +959,9 @@ const ResumeBuilder = () => {
             <p className="resume-summary">{personal.summary}</p>
           </div>
         )}
+        <div className="sections-flow">
         {experience.length > 0 && (
-          <div className="resume-section">
+          <div className="resume-section" style={{ order: sectionOrder.indexOf('experience') }}>
             <h2 className="resume-section-title">Work Experience</h2>
             {experience.map(exp => (
               <div key={exp.id} className="resume-entry">
@@ -922,7 +978,7 @@ const ResumeBuilder = () => {
           </div>
         )}
         {education.length > 0 && (
-          <div className="resume-section">
+          <div className="resume-section" style={{ order: sectionOrder.indexOf('education') }}>
             <h2 className="resume-section-title">Education</h2>
             {education.map(edu => (
               <div key={edu.id} className="resume-entry">
@@ -941,7 +997,7 @@ const ResumeBuilder = () => {
           </div>
         )}
         {skills.length > 0 && (
-          <div className="resume-section">
+          <div className="resume-section" style={{ order: sectionOrder.indexOf('skills') }}>
             <h2 className="resume-section-title">Skills</h2>
             <div className="resume-skills">
               {skills.map((skill, i) => (
@@ -951,7 +1007,7 @@ const ResumeBuilder = () => {
           </div>
         )}
         {projects.length > 0 && (
-          <div className="resume-section">
+          <div className="resume-section" style={{ order: sectionOrder.indexOf('projects') }}>
             <h2 className="resume-section-title">Projects</h2>
             {projects.map(proj => (
               <div key={proj.id} className="resume-entry">
@@ -968,7 +1024,7 @@ const ResumeBuilder = () => {
           </div>
         )}
         {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
-          <div key={sec.id} className="resume-section">
+          <div key={sec.id} className="resume-section" style={{ order: sectionOrder.indexOf('custom') }}>
             <h2 className="resume-section-title">{sec.title}</h2>
             <ul className="resume-custom-list">
               {sec.items.filter(i => i.content).map(item => (
@@ -977,6 +1033,8 @@ const ResumeBuilder = () => {
             </ul>
           </div>
         ))}
+        </div>
+        {pageBreaks(pageCount)}
         {emptyState && (
           <div className="resume-empty">
             <FileText size={48} strokeWidth={1} />
@@ -1018,14 +1076,35 @@ const ResumeBuilder = () => {
         <div className="builder-form">
           <div className="form-nav">
             {sections.map(section => (
-              <button
-                key={section.id}
-                className={`form-nav-btn ${activeSection === section.id ? 'active' : ''}`}
-                onClick={() => setActiveSection(section.id)}
-              >
-                {section.icon}
-                <span>{section.label}</span>
-              </button>
+              <div key={section.id} className="form-nav-item">
+                <button
+                  className={`form-nav-btn ${activeSection === section.id ? 'active' : ''}`}
+                  onClick={() => setActiveSection(section.id)}
+                >
+                  {section.icon}
+                  <span>{section.label}</span>
+                </button>
+                {section.id !== 'personal' && (
+                  <div className="form-nav-reorder">
+                    <button
+                      className="reorder-btn"
+                      onClick={(e) => { e.stopPropagation(); moveSectionUp(section.id); }}
+                      disabled={sectionOrder.indexOf(section.id) === 0}
+                      title="Move up in resume"
+                    >
+                      <ChevronUp size={11} />
+                    </button>
+                    <button
+                      className="reorder-btn"
+                      onClick={(e) => { e.stopPropagation(); moveSectionDown(section.id); }}
+                      disabled={sectionOrder.indexOf(section.id) === sectionOrder.length - 1}
+                      title="Move down in resume"
+                    >
+                      <ChevronDown size={11} />
+                    </button>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
@@ -1513,6 +1592,11 @@ const ResumeBuilder = () => {
           <div className="builder-preview">
             <div className="preview-header">
               <span className="preview-label-text">Live Preview</span>
+              <div className="page-count-control">
+                <button className="page-count-btn" onClick={() => setPageCount(p => Math.max(1, p - 1))} disabled={pageCount === 1}>−</button>
+                <span className="page-count-label">{pageCount} page{pageCount > 1 ? 's' : ''}</span>
+                <button className="page-count-btn" onClick={() => setPageCount(p => Math.min(4, p + 1))} disabled={pageCount === 4}>+</button>
+              </div>
               <div className="template-dropdown-wrapper" ref={templateDropdownRef}>
                 <button
                   className={`template-dropdown-trigger ${templateDropdownOpen ? 'open' : ''}`}
