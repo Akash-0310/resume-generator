@@ -9,7 +9,7 @@ import jsPDF from 'jspdf';
 import './ResumeBuilder.css';
 
 const ResumeBuilder = () => {
-  const resumeRef = useRef(null);
+  const pageRefs = useRef([]);
   const [showPreview, setShowPreview] = useState(true);
   const [activeSection, setActiveSection] = useState('personal');
   const [isDownloading, setIsDownloading] = useState(false);
@@ -229,37 +229,38 @@ const ResumeBuilder = () => {
     });
   };
 
-  const pageBreaks = (count) => Array.from({ length: count - 1 }, (_, i) => (
-    <div key={`pb-${i}`} style={{
-      position: 'absolute', left: 0, right: 0,
-      top: `${(i + 1) * 1050}px`,
-      borderTop: '2px dashed #94a3b8',
-      pointerEvents: 'none', zIndex: 10
-    }} />
-  ));
+  const renderPages = (buildContent) => (
+    <div className="resume-pages-container">
+      {Array.from({ length: pageCount }, (_, i) => (
+        <div key={i} className="resume-page-frame" ref={el => { pageRefs.current[i] = el; }}>
+          <div style={{ transform: `translateY(-${i * 1050}px)` }}>
+            {buildContent()}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   const downloadPDF = async () => {
-    if (!resumeRef.current) return;
+    if (!pageRefs.current[0]) return;
     setIsDownloading(true);
 
     try {
-      const canvas = await html2canvas(resumeRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-      });
-
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      const pageH = pdf.internal.pageSize.getHeight();
-      let y = 0;
-      while (y < pdfHeight) {
-        if (y > 0) pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, -y, pdfWidth, pdfHeight);
-        y += pageH;
+      for (let i = 0; i < pageCount; i++) {
+        const el = pageRefs.current[i];
+        if (!el) continue;
+        const canvas = await html2canvas(el, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const imgH = (canvas.height * pdfWidth) / canvas.width;
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgH);
       }
 
       const fileName = resumeData.personal.fullName
@@ -289,8 +290,8 @@ const ResumeBuilder = () => {
       skills.length === 0 && projects.length === 0 && customSections.length === 0;
 
     if (selectedTemplate === 'modern') {
-      return (
-        <div className="resume-paper resume-modern" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
+      return renderPages(() => (
+        <div className="resume-paper resume-modern" style={{ minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-modern-sidebar">
             <div className="resume-modern-name-block">
               <h1>{personal.fullName || 'Your Name'}</h1>
@@ -386,7 +387,6 @@ const ResumeBuilder = () => {
               </div>
             ))}
             </div>
-            {pageBreaks(pageCount)}
             {emptyState && (
               <div className="resume-empty">
                 <FileText size={48} strokeWidth={1} />
@@ -395,12 +395,12 @@ const ResumeBuilder = () => {
             )}
           </div>
         </div>
-      );
+      ));
     }
 
     if (selectedTemplate === 'minimal') {
-      return (
-        <div className="resume-paper resume-minimal" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
+      return renderPages(() => (
+        <div className="resume-paper resume-minimal" style={{ minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-minimal-header">
             <h1>{personal.fullName || 'Your Name'}</h1>
             {personal.title && <p className="resume-minimal-title">{personal.title}</p>}
@@ -489,7 +489,6 @@ const ResumeBuilder = () => {
             </div>
           ))}
           </div>
-          {pageBreaks(pageCount)}
           {emptyState && (
             <div className="resume-empty">
               <FileText size={48} strokeWidth={1} />
@@ -497,12 +496,12 @@ const ResumeBuilder = () => {
             </div>
           )}
         </div>
-      );
+      ));
     }
 
     if (selectedTemplate === 'executive') {
-      return (
-        <div className="resume-paper resume-executive" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
+      return renderPages(() => (
+        <div className="resume-paper resume-executive" style={{ minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-executive-header">
             <div>
               <h1>{personal.fullName || 'Your Name'}</h1>
@@ -594,7 +593,6 @@ const ResumeBuilder = () => {
                 </div>
               ))}
               </div>
-              {pageBreaks(pageCount)}
             </div>
           </div>
           {emptyState && (
@@ -604,12 +602,12 @@ const ResumeBuilder = () => {
             </div>
           )}
         </div>
-      );
+      ));
     }
 
     if (selectedTemplate === 'creative') {
-      return (
-        <div className="resume-paper resume-creative" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
+      return renderPages(() => (
+        <div className="resume-paper resume-creative" style={{ minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-creative-header">
             <div className="resume-creative-name">
               <h1>{personal.fullName || 'Your Name'}</h1>
@@ -706,7 +704,6 @@ const ResumeBuilder = () => {
               </div>
             ))}
             </div>
-            {pageBreaks(pageCount)}
             {emptyState && (
               <div className="resume-empty">
                 <FileText size={48} strokeWidth={1} />
@@ -715,12 +712,12 @@ const ResumeBuilder = () => {
             )}
           </div>
         </div>
-      );
+      ));
     }
 
     if (selectedTemplate === 'corporate') {
-      return (
-        <div className="resume-paper resume-corporate" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
+      return renderPages(() => (
+        <div className="resume-paper resume-corporate" style={{ minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-corporate-header">
             <h1>{personal.fullName || 'Your Name'}</h1>
             {personal.title && <p className="resume-corporate-title">{personal.title}</p>}
@@ -814,7 +811,6 @@ const ResumeBuilder = () => {
             </div>
           ))}
           </div>
-          {pageBreaks(pageCount)}
           {emptyState && (
             <div className="resume-empty">
               <FileText size={48} strokeWidth={1} />
@@ -822,12 +818,12 @@ const ResumeBuilder = () => {
             </div>
           )}
         </div>
-      );
+      ));
     }
 
     if (selectedTemplate === 'card') {
-      return (
-        <div className="resume-paper resume-card" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
+      return renderPages(() => (
+        <div className="resume-paper resume-card" style={{ minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
           <div className="resume-card-header">
             <div className="resume-card-name">
               <h1>{personal.fullName || 'Your Name'}</h1>
@@ -924,7 +920,6 @@ const ResumeBuilder = () => {
               </div>
             ))}
             </div>
-            {pageBreaks(pageCount)}
           </div>
           {emptyState && (
             <div className="resume-empty">
@@ -933,12 +928,12 @@ const ResumeBuilder = () => {
             </div>
           )}
         </div>
-      );
+      ));
     }
 
     // Classic (default)
-    return (
-      <div className="resume-paper" ref={resumeRef} style={{ position: 'relative', minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
+    return renderPages(() => (
+      <div className="resume-paper" style={{ minHeight: pageCount > 1 ? `${pageCount * 1050}px` : undefined }}>
         <div className="resume-header">
           <h1 className="resume-name">{personal.fullName || 'Your Name'}</h1>
           {personal.title && <p className="resume-title">{personal.title}</p>}
@@ -1034,7 +1029,6 @@ const ResumeBuilder = () => {
           </div>
         ))}
         </div>
-        {pageBreaks(pageCount)}
         {emptyState && (
           <div className="resume-empty">
             <FileText size={48} strokeWidth={1} />
@@ -1042,7 +1036,7 @@ const ResumeBuilder = () => {
           </div>
         )}
       </div>
-    );
+    ));
   };
 
   return (
