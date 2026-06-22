@@ -1245,3 +1245,68 @@
   font-weight: 600;
   margin: 0.2rem 0.2rem 0.2rem 0;
 }
+
+/* ============ CUSTOM SECTIONS FORM ============ */
+.custom-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.custom-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.custom-item-row input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.custom-item-row input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.add-item-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  background: transparent;
+  border: 1px dashed var(--accent-primary);
+  color: var(--accent-primary);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-top: 0.25rem;
+  width: fit-content;
+}
+
+.add-item-btn:hover {
+  background: var(--accent-primary);
+  color: #fff;
+}
+
+/* ============ CUSTOM SECTIONS PREVIEW ============ */
+.resume-custom-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  list-style: disc;
+}
+
+.resume-custom-list li {
+  font-size: 0.78rem;
+  color: #374151;
+  margin-bottom: 0.25rem;
+  line-height: 1.5;
+}

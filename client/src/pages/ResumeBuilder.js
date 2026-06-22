@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   User, Briefcase, GraduationCap, Code, Award, Languages, Plus, Trash2,
   Download, Eye, EyeOff, ChevronDown, ChevronUp, Mail, Phone, MapPin,
-  Linkedin, Github, Globe, FileText, Palette, Check
+  Linkedin, Github, Globe, FileText, Palette, Check, LayoutList
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -53,6 +53,7 @@ const ResumeBuilder = () => {
     education: [],
     skills: [],
     projects: [],
+    customSections: [],
   });
 
   const [newSkill, setNewSkill] = useState('');
@@ -156,6 +157,56 @@ const ResumeBuilder = () => {
     }));
   };
 
+  const addCustomSection = () => {
+    setResumeData(prev => ({
+      ...prev,
+      customSections: [...prev.customSections, { id: Date.now(), title: 'New Section', items: [] }]
+    }));
+  };
+
+  const updateCustomSectionTitle = (id, title) => {
+    setResumeData(prev => ({
+      ...prev,
+      customSections: prev.customSections.map(sec => sec.id === id ? { ...sec, title } : sec)
+    }));
+  };
+
+  const removeCustomSection = (id) => {
+    setResumeData(prev => ({
+      ...prev,
+      customSections: prev.customSections.filter(sec => sec.id !== id)
+    }));
+  };
+
+  const addCustomItem = (sectionId) => {
+    setResumeData(prev => ({
+      ...prev,
+      customSections: prev.customSections.map(sec =>
+        sec.id === sectionId ? { ...sec, items: [...sec.items, { id: Date.now(), content: '' }] } : sec
+      )
+    }));
+  };
+
+  const updateCustomItem = (sectionId, itemId, content) => {
+    setResumeData(prev => ({
+      ...prev,
+      customSections: prev.customSections.map(sec =>
+        sec.id === sectionId
+          ? { ...sec, items: sec.items.map(item => item.id === itemId ? { ...item, content } : item) }
+          : sec
+      )
+    }));
+  };
+
+  const removeCustomItem = (sectionId, itemId) => {
+    setResumeData(prev => ({
+      ...prev,
+      customSections: prev.customSections.map(sec =>
+        sec.id === sectionId ? { ...sec, items: sec.items.filter(item => item.id !== itemId) } : sec
+      )
+    }));
+  };
+
   const downloadPDF = async () => {
     if (!resumeRef.current) return;
     setIsDownloading(true);
@@ -191,13 +242,14 @@ const ResumeBuilder = () => {
     { id: 'education', label: 'Education', icon: <GraduationCap size={18} /> },
     { id: 'skills', label: 'Skills', icon: <Code size={18} /> },
     { id: 'projects', label: 'Projects', icon: <Award size={18} /> },
+    { id: 'custom', label: 'Custom', icon: <LayoutList size={18} /> },
   ];
 
-  const { personal, experience, education, skills, projects } = resumeData;
+  const { personal, experience, education, skills, projects, customSections } = resumeData;
 
   const renderTemplate = () => {
     const emptyState = !personal.fullName && experience.length === 0 && education.length === 0 &&
-      skills.length === 0 && projects.length === 0;
+      skills.length === 0 && projects.length === 0 && customSections.length === 0;
 
     if (selectedTemplate === 'modern') {
       return (
@@ -285,6 +337,16 @@ const ResumeBuilder = () => {
                 ))}
               </div>
             )}
+            {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
+              <div key={sec.id} className="resume-section">
+                <h2 className="resume-section-title rmt">{sec.title}</h2>
+                <ul className="resume-custom-list">
+                  {sec.items.filter(i => i.content).map(item => (
+                    <li key={item.id}>{item.content}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
             {emptyState && (
               <div className="resume-empty">
                 <FileText size={48} strokeWidth={1} />
@@ -375,6 +437,16 @@ const ResumeBuilder = () => {
               ))}
             </div>
           )}
+          {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
+            <div key={sec.id} className="resume-minimal-section">
+              <h2>{sec.title}</h2>
+              <ul className="resume-custom-list">
+                {sec.items.filter(i => i.content).map(item => (
+                  <li key={item.id}>{item.content}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
           {emptyState && (
             <div className="resume-empty">
               <FileText size={48} strokeWidth={1} />
@@ -467,6 +539,16 @@ const ResumeBuilder = () => {
                   ))}
                 </div>
               )}
+              {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
+                <div key={sec.id} className="resume-exec-section">
+                  <h2>{sec.title}</h2>
+                  <ul className="resume-custom-list">
+                    {sec.items.filter(i => i.content).map(item => (
+                      <li key={item.id}>{item.content}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           </div>
           {emptyState && (
@@ -566,6 +648,16 @@ const ResumeBuilder = () => {
                 ))}
               </div>
             )}
+            {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
+              <div key={sec.id} className="resume-creative-section">
+                <h2>{sec.title}</h2>
+                <ul className="resume-custom-list">
+                  {sec.items.filter(i => i.content).map(item => (
+                    <li key={item.id}>{item.content}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
             {emptyState && (
               <div className="resume-empty">
                 <FileText size={48} strokeWidth={1} />
@@ -661,6 +753,16 @@ const ResumeBuilder = () => {
               ))}
             </div>
           )}
+          {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
+            <div key={sec.id} className="resume-corp-section">
+              <h2>{sec.title}</h2>
+              <ul className="resume-custom-list">
+                {sec.items.filter(i => i.content).map(item => (
+                  <li key={item.id}>{item.content}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
           {emptyState && (
             <div className="resume-empty">
               <FileText size={48} strokeWidth={1} />
@@ -758,6 +860,16 @@ const ResumeBuilder = () => {
                 ))}
               </div>
             )}
+            {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
+              <div key={sec.id} className="resume-card-block">
+                <h2>{sec.title}</h2>
+                <ul className="resume-custom-list">
+                  {sec.items.filter(i => i.content).map(item => (
+                    <li key={item.id}>{item.content}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
           {emptyState && (
             <div className="resume-empty">
@@ -855,6 +967,16 @@ const ResumeBuilder = () => {
             ))}
           </div>
         )}
+        {customSections.filter(sec => sec.items.some(i => i.content)).map(sec => (
+          <div key={sec.id} className="resume-section">
+            <h2 className="resume-section-title">{sec.title}</h2>
+            <ul className="resume-custom-list">
+              {sec.items.filter(i => i.content).map(item => (
+                <li key={item.id}>{item.content}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
         {emptyState && (
           <div className="resume-empty">
             <FileText size={48} strokeWidth={1} />
@@ -1250,6 +1372,62 @@ const ResumeBuilder = () => {
                     </span>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Custom Sections */}
+            {activeSection === 'custom' && (
+              <div className="form-section">
+                <div className="section-header-row">
+                  <h2><LayoutList size={20} /> Custom Sections</h2>
+                  <button className="add-btn" onClick={addCustomSection}>
+                    <Plus size={16} /> Add Section
+                  </button>
+                </div>
+                {customSections.length === 0 && (
+                  <div className="empty-state">
+                    <LayoutList size={40} />
+                    <p>No custom sections yet. Click "Add Section" to create one — e.g. Certifications, Awards, Languages, Volunteer Work.</p>
+                  </div>
+                )}
+                {customSections.map((sec, index) => (
+                  <div key={sec.id} className="entry-card">
+                    <div className="entry-header">
+                      <span className="entry-number">Section {index + 1}</span>
+                      <button className="remove-btn" onClick={() => removeCustomSection(sec.id)}>
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    <div className="builder-field full-width">
+                      <label htmlFor={`custom-title-${sec.id}`}>Section Title</label>
+                      <input
+                        id={`custom-title-${sec.id}`}
+                        type="text"
+                        value={sec.title}
+                        onChange={(e) => updateCustomSectionTitle(sec.id, e.target.value)}
+                        placeholder="e.g. Certifications, Awards, Volunteer Work..."
+                      />
+                    </div>
+                    <div className="custom-items-list">
+                      {sec.items.map((item, i) => (
+                        <div key={item.id} className="custom-item-row">
+                          <input
+                            type="text"
+                            value={item.content}
+                            onChange={(e) => updateCustomItem(sec.id, item.id, e.target.value)}
+                            placeholder={`Item ${i + 1}`}
+                          />
+                          <button className="remove-btn" onClick={() => removeCustomItem(sec.id, item.id)}>
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      <button className="add-item-btn" onClick={() => addCustomItem(sec.id)}>
+                        <Plus size={14} /> Add Item
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
